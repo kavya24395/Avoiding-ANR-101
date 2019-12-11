@@ -1,0 +1,22 @@
+Intro:
+
+We all have had our share of ANR, when the UI thread (or main thread) does not respond for more than 5 seconds, we get an ANR.
+
+How to find The possible root cause:
+Step 1 — Find an ANR \_(-.-)_/
+Step 2 — Take traces!
+
+I have found two types of ANRs:
+First, I call a permanent ANR. When my “main” thread is in a solid “BLOCKED” state. And my UI does not respond behind that ANR pop up and I choose to “Close” my app.
+Second, I would call a temporary ANR, I do see that ANR pop up, but my UI seems to be happily running behind that pop up. I click on the “Cancel” button and ~ta-da~ all good to go.
+
+
+In case the ANR is of second type, take traces as soon as you notice that pop-up. Else you may be left with a trace which is hard to decode. (We will talk more on it, as we start trying to analyse trace file in further posts)
+
+ANR usually occurs for one of these reasons (ref: https://developer.android.com/topic/performance/vitals/anr#fix_the_problems ):
+Slow code on the main thread — No heavy duty operation in the main thread peeps!
+IO on the main Thread — DONT!
+Lock contention — Lets say a thread A tries to fetch a string from res folder. He ends up holding on to the AssetManager to do so. Worse yet, when this A thread tries reading res strings in a loop! My AssetManager will be held by this A thread to execute this loop. During this, if my main thread tries to access this res folder, he needs access to this AssetManager who is being held by A. We got ourselves lock contention.
+Deadlocks — Consider I have two threads, T1 and T2. T1 holds the lock to an object A, and in order to proceed needs to acquire lock to B. But this B is held by T2, who in turn is waiting to lock object A. Both the threads T1 and T2 do not release their locks A & B respectively, waiting for the other. This leads to a deadlock state! When one of the threads in question is main thread. That’s when we got a problem.
+Slow broadcast receivers — If your receiver takes more than 10 seconds to complete, you will find yourself an ANR.
+Now that we got all the possible root cause jotted down. We shall proceed to finding what caused my ANR pop up. Lets be realistic here, it’s more like what caused SOME of my ANRs (Still exploring ways to debug my ANR).
