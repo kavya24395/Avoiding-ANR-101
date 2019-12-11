@@ -1,5 +1,6 @@
-Intro:
+Medium post: https://medium.com/@kavya.ps095/android-not-fudging-responding-7c2ee2b86096
 
+Intro:
 We all have had our share of ANR, when the UI thread (or main thread) does not respond for more than 5 seconds, we get an ANR.
 
 How to find The possible root cause:
